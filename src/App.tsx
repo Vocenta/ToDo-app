@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import AccountData from "./components/AccountSection/AccountData";
 import Footer from "./components/Footer";
 import Menu from "./components/Menu/Menu";
@@ -7,13 +7,17 @@ import ModalCreateTask from "./components/Utilities/ModalTask";
 import { Task } from "./interfaces";
 import { useAppDispatch, useAppSelector } from "./store/hooks";
 import { modalActions } from "./store/Modal.store";
-import { tasksActions } from "./store/Tasks.store";
+import { tasksActions, fetchDirectories } from "./store/Tasks.store";
 import RequireAuth from "./components/Utilities/RequireAuth";
 
 const App: React.FC = () => {
   const modal = useAppSelector((state) => state.modal);
 
   const dispatch = useAppDispatch();
+
+  useEffect(() => {
+    dispatch(fetchDirectories());
+  }, [dispatch]);
 
   const closeModalCreateTask = () => {
     dispatch(modalActions.closeModalCreateTask());

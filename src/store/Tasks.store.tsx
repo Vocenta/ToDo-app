@@ -49,7 +49,7 @@ export const removeTask = (id: string) => async (dispatch: Dispatch) => {
 
 export const addDirectory = (dirName: string) => async (dispatch: Dispatch) => {
   const docRef = await addDoc(directoriesCollection, { name: dirName });
-  dispatch(tasksSlice.actions.createDirectory(dirName)); // Reemplazar 'docName' por 'dirName'
+  dispatch(tasksSlice.actions.createDirectory(dirName));
 };
 
 export const deleteDirectory = (dirName: string) => async (dispatch: Dispatch) => {
@@ -59,6 +59,16 @@ export const deleteDirectory = (dirName: string) => async (dispatch: Dispatch) =
   if (dirDoc) {
     await deleteDoc(doc(db, "directories", dirDoc.id));
     dispatch(tasksSlice.actions.deleteDirectory(dirName));
+  }
+};
+
+export const createDirectory = (dirName: string) => async (dispatch: Dispatch) => {
+  const directoryDoesNotExist = (await getDocs(directoriesCollection)).docs.every(
+    (doc) => doc.data().name !== dirName
+  );
+
+  if (directoryDoesNotExist) {
+    await addDirectory(dirName)(dispatch);
   }
 };
 
@@ -108,7 +118,6 @@ const tasksSlice = createSlice({
       const newDirectory = action.payload;
       if (!state.directories.includes(newDirectory)) {
         state.directories = [newDirectory, ...state.directories];
-        addDirectory(newDirectory); // Agrega en Firestore
       }
     },
     deleteDirectory(state, action: PayloadAction<string>) {
