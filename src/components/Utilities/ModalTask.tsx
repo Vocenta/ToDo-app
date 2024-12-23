@@ -90,6 +90,8 @@ const ModalCreateTask: React.FC<{
     return directories[0];
   });
 
+  const [subTasks, setSubTasks] = useState<string[]>([]);
+
   const addNewTaskHandler = (event: React.FormEvent): void => {
     event.preventDefault();
 
@@ -110,6 +112,17 @@ const ModalCreateTask: React.FC<{
       onClose();
     }
   };
+
+  const generateSubtasks = () => {
+    // Lógica para generar subtareas usando GPT
+    const generatedSubTasks = [
+      "Subtarea 1: Analizar requisitos",
+      "Subtarea 2: Diseñar solución",
+      "Subtarea 3: Implementar código",
+    ];
+    setSubTasks(generatedSubTasks);
+  };
+
   return (
     <Modal onClose={onClose} title={nameForm}>
       <form
@@ -117,7 +130,7 @@ const ModalCreateTask: React.FC<{
         onSubmit={addNewTaskHandler}
       >
         <label>
-        Título
+          Título
           <input
             type="text"
             placeholder="e.g, study for the test"
@@ -140,7 +153,7 @@ const ModalCreateTask: React.FC<{
           />
         </label>
         <label>
-         Descripción (opcional)
+          Descripción (opcional)
           <textarea
             placeholder="e.g, study for the test"
             className="w-full"
@@ -148,8 +161,36 @@ const ModalCreateTask: React.FC<{
             onChange={({ target }) => setDescription(target.value)}
           ></textarea>
         </label>
+        <a href="#" onClick={generateSubtasks} className="text-blue-500 mt-2">
+          Generar subtareas
+        </a>
+        <div className="sub-tasks-container mt-2">
+          {subTasks.map((subTask, index) => (
+            <div
+              key={index}
+              id="sub-task-item"
+              className="mt-5 flex items-center justify-between p-2 sub-task-item"
+            >
+              <div className="flex items-center justify-center gap-2">
+                <input
+                  type="checkbox"
+                  className="defaultCheckbox relative flex h-[20px] min-h-[20px] w-[20px] min-w-[20px] appearance-none items-center 
+                              justify-center rounded-md border border-gray-300 text-white/0 outline-none transition duration-[0.2s]
+                              checked:border-none checked:text-white hover:cursor-pointer dark:border-white/10 checked:bg-brand-500 dark:checked:bg-brand-400"
+                  name="weekly"
+                />
+                <p className="text-base font-bold text-navy-700 dark:text-white">
+                  {subTask}
+                </p>
+              </div>
+              <span className="material-symbols-rounded h-6 w-6 text-navy-700 dark:text-white cursor-pointer">
+                o
+              </span>
+            </div>
+          ))}
+        </div>
         <label>
-        Seleccione un directorio
+          Seleccione un directorio
           <select
             className="block w-full"
             value={selectedDirectory}
