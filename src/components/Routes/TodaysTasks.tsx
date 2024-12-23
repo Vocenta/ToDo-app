@@ -6,10 +6,10 @@ import LayoutRoutes from "../Utilities/LayoutRoutes";
 const TodaysTasks: React.FC = () => {
   const todaysTasks = useTodayTasks();
 
-  useDescriptionTitle("Today's tasks", "Today's tasks");
+  useDescriptionTitle("Las tareas de hoy", "Las tareas de hoy");
 
   return (
-    <LayoutRoutes title="Today's tasks" tasks={todaysTasks}></LayoutRoutes>
+    <LayoutRoutes title="Las tareas de hoy" tasks={todaysTasks}></LayoutRoutes>
   );
 };
 

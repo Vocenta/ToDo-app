@@ -104,7 +104,7 @@ const ModalCreateTask: React.FC<{
         date: date,
         completed: isCompleted,
         important: isImportant,
-        id: task?.id ? task.id : Date.now().toString(),
+        id: task?.id || Date.now().toString(), // Asegurar que el id no se modifique si ya existe
       };
       onConfirm(newTask);
       onClose();
@@ -117,7 +117,7 @@ const ModalCreateTask: React.FC<{
         onSubmit={addNewTaskHandler}
       >
         <label>
-          Title
+        Título
           <input
             type="text"
             placeholder="e.g, study for the test"
@@ -128,7 +128,7 @@ const ModalCreateTask: React.FC<{
           />
         </label>
         <label>
-          Date
+          Fecha
           <input
             type="date"
             className="w-full"
@@ -140,7 +140,7 @@ const ModalCreateTask: React.FC<{
           />
         </label>
         <label>
-          Description (optional)
+         Descripción (opcional)
           <textarea
             placeholder="e.g, study for the test"
             className="w-full"
@@ -149,7 +149,7 @@ const ModalCreateTask: React.FC<{
           ></textarea>
         </label>
         <label>
-          Select a directory
+        Seleccione un directorio
           <select
             className="block w-full"
             value={selectedDirectory}
@@ -169,12 +169,12 @@ const ModalCreateTask: React.FC<{
         <InputCheckbox
           isChecked={isImportant}
           setChecked={setIsImportant}
-          label="Mark as important"
+          label="Marcar como importante"
         />
         <InputCheckbox
           isChecked={isCompleted}
           setChecked={setIsCompleted}
-          label="Mark as completed"
+          label="Marcar como completado"
         />
         <button type="submit" className="btn mt-5">
           {nameForm}

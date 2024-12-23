@@ -58,7 +58,7 @@ const LayoutRoutes: React.FC<Props> = ({ title, tasks }) => {
                  isListInView1 ? "h-20 sm:h-32" : "h-52 sm:h-64"
                }`}
           >
-            Add new task
+          Agregar nueva tarea
           </button>
         </li>
       </ul>

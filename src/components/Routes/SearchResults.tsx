@@ -22,7 +22,7 @@ const SearchResults: React.FC = () => {
 
   const matchedTasks = useSearchQuery(currQueryParam);
 
-  const title = `Results for "${currQueryParam}"`;
+  const title = `Resultados para "${currQueryParam}"`;
 
   useDescriptionTitle(title, title);
 

@@ -1,5 +1,5 @@
 import { initializeApp } from "firebase/app";
-import { getFirestore } from "firebase/firestore";
+import { getFirestore, doc, setDoc } from "firebase/firestore";
 import { getAuth, signInWithPopup, GoogleAuthProvider, signOut } from "firebase/auth";
 
 const firebaseConfig = {
@@ -17,11 +17,27 @@ const db = getFirestore(app);
 const auth = getAuth(app);
 const provider = new GoogleAuthProvider();
 
+// Función para obtener el id_corp (debe ser implementada según la lógica de la aplicación)
+const getIdCorp = (): string => {
+  // Aquí se debe implementar la lógica para obtener el id_corp
+  return "example_id_corp"; // Reemplazar con la lógica real
+};
+
 const signInWithGoogle = async () => {
   try {
     const result = await signInWithPopup(auth, provider);
-    // Puedes manejar el resultado aquí, como obtener el usuario
-    console.log("Usuario autenticado:", result.user);
+    const user = result.user;
+    const id_corp = getIdCorp();
+
+    // Guardar el id_corp en el documento del usuario en Firestore
+    await setDoc(doc(db, "users", user.uid), {
+      email: user.email,
+      displayName: user.displayName,
+      photoURL: user.photoURL,
+      id_corp: id_corp,
+    });
+
+    console.log("Usuario autenticado y registrado:", user);
   } catch (error) {
     console.error("Error al iniciar sesión con Google:", error);
   }

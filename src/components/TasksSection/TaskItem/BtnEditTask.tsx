@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { useAppDispatch } from "../../../store/hooks";
-import { tasksActions } from "../../../store/Tasks.store";
+import { updateTask } from "../../../store/Tasks.store";
 import ModalCreateTask from "../../Utilities/ModalTask";
 import { ReactComponent as OptionsSvg } from "../../../assets/options.svg";
 import { Task } from "../../../interfaces";
@@ -18,7 +18,7 @@ const BtnEditTask: React.FC<{ task: Task }> = ({ task }) => {
   };
 
   const editTaskHandler = (task: Task) => {
-    dispatch(tasksActions.editTask(task));
+    dispatch(updateTask(task));
   };
 
   return (

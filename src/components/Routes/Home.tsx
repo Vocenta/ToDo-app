@@ -7,7 +7,7 @@ const Home: React.FC = () => {
   const tasks = useAppSelector((state) => state.tasks.tasks);
 
   useDescriptionTitle("Organize your tasks", "All tasks");
-  return <LayoutRoutes title="All tasks" tasks={tasks}></LayoutRoutes>;
+  return <LayoutRoutes title="Todas las tareas" tasks={tasks}></LayoutRoutes>;
 };
 
 export default Home;

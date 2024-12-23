@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { NavLink, useLocation } from "react-router-dom";
 import { useAppDispatch } from "../../../store/hooks";
-import { tasksActions } from "../../../store/Tasks.store";
+import { deleteDirectory, editDirectoryName } from "../../../store/Tasks.store";
 import { ReactComponent as Trash } from "../../../assets/trash.svg";
 import { ReactComponent as Edit } from "../../../assets/edit.svg";
 import ModalConfirm from "../../Utilities/ModalConfirm";
@@ -24,15 +24,12 @@ const ItemDirectory: React.FC<{ dir: string; classActive: string }> = ({
   };
 
   const deleteDirectoryHandler = () => {
-    dispatch(tasksActions.deleteDirectory(dir));
+    dispatch(deleteDirectory(dir));
   };
 
   const confirmEditDirNameHandler = (dirName: string) => {
     dispatch(
-      tasksActions.editDirectoryName({
-        previousDirName: dir,
-        newDirName: dirName,
-      })
+      editDirectoryName(dirName, dir)
     );
   };
 

@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { useAppDispatch } from "../../../store/hooks";
-import { tasksActions } from "../../../store/Tasks.store";
+import { removeTask } from "../../../store/Tasks.store";
 import ModalConfirm from "../../Utilities/ModalConfirm";
 import { ReactComponent as Trash } from "../../../assets/trash.svg";
 
@@ -9,7 +9,7 @@ const BtnDeleteTask: React.FC<{ taskId: string }> = ({ taskId }) => {
   const dispatch = useAppDispatch();
 
   const removeTaskHandler = () => {
-    dispatch(tasksActions.removeTask(taskId));
+    dispatch(removeTask(taskId));
   };
   return (
     <>

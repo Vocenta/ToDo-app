@@ -22,7 +22,7 @@ const Directories: React.FC<{ classActive: string }> = ({ classActive }) => {
             isDirectoriesOpen ? "rotate-180" : ""
           }`}
         />
-        Directories
+        Directorios
       </button>
       <div className={isDirectoriesOpen ? "visible" : "hidden"}>
         <ContentDirectories classActive={classActive} />

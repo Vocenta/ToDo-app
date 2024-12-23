@@ -16,7 +16,7 @@ const ModalConfirm: React.FC<{
       <div className="mt-7 ml-auto">
         <button onClick={onClose}>Cancel</button>
         <button onClick={confirmAndCloseModal} className="btn ml-6">
-          Confirm
+          Confirmar
         </button>
       </div>
     </Modal>

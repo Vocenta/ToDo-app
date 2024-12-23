@@ -3,23 +3,23 @@ import { NavLink, useLocation } from "react-router-dom";
 
 const links = [
   {
-    name: "Today's tasks",
+    name: "Las tareas de hoy",
     path: "/today",
   },
   {
-    name: "All tasks",
+    name: "Todas las tareas",
     path: "/",
   },
   {
-    name: "Important tasks",
+    name: "Tareas importantes",
     path: "/important",
   },
   {
-    name: "Completed tasks",
+    name: "Tareas completadas",
     path: "/completed",
   },
   {
-    name: "Uncompleted tasks",
+    name: "Tareas incompletas",
     path: "/uncompleted",
   },
 ];
@@ -34,7 +34,7 @@ const NavLinks: React.FC<{ classActive: string }> = ({ classActive }) => {
           <li key={link.path}>
             <NavLink
               to={link.path}
-              className={`px-4 py-2 w-full block transition hover:text-rose-600 dark:hover:text-slate-200 ${
+              className={`px-4 py-1 w-full block transition hover:text-rose-600 dark:hover:text-slate-200 ${
                 currentPath === link.path ? classActive : ""
               }`}
             >

@@ -7,7 +7,7 @@ import ModalCreateTask from "./components/Utilities/ModalTask";
 import { Task } from "./interfaces";
 import { useAppDispatch, useAppSelector } from "./store/hooks";
 import { modalActions } from "./store/Modal.store";
-import { tasksActions, fetchDirectories } from "./store/Tasks.store";
+import { addTask, fetchDirectories, fetchTasks } from "./store/Tasks.store";
 import RequireAuth from "./components/Utilities/RequireAuth";
 
 const App: React.FC = () => {
@@ -17,6 +17,7 @@ const App: React.FC = () => {
 
   useEffect(() => {
     dispatch(fetchDirectories());
+    dispatch(fetchTasks());
   }, [dispatch]);
 
   const closeModalCreateTask = () => {
@@ -24,7 +25,7 @@ const App: React.FC = () => {
   };
 
   const createNewTaskHandler = (task: Task) => {
-    dispatch(tasksActions.addNewTask(task));
+    dispatch(addTask(task));
   };
 
   return (
