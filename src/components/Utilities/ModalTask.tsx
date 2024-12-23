@@ -111,7 +111,17 @@ const ModalCreateTask: React.FC<{
       onConfirm(newTask);
       onClose();
     }
+
+
   };
+
+  const reformulateTask = () => {
+    
+    // Lógica para reformular tarea usando GPT
+    const reformulatedTask = "Reformulación de la tarea";
+    setDescription(reformulatedTask); // Actualizar descripción
+  }
+
 
   const generateSubtasks = () => {
     // Lógica para generar subtareas usando GPT
@@ -133,7 +143,7 @@ const ModalCreateTask: React.FC<{
           Título
           <input
             type="text"
-            placeholder="e.g, study for the test"
+            placeholder="Por ejemplo, estudiar para el examen"
             required
             value={title}
             onChange={({ target }) => setTitle(target.value)}
@@ -152,18 +162,81 @@ const ModalCreateTask: React.FC<{
             max={maxDate}
           />
         </label>
-        <label>
-          Descripción (opcional)
-          <textarea
-            placeholder="e.g, study for the test"
-            className="w-full"
-            value={description}
-            onChange={({ target }) => setDescription(target.value)}
-          ></textarea>
-        </label>
-        <a href="#" onClick={generateSubtasks} className="text-blue-500 mt-2">
-          Generar subtareas
-        </a>
+      
+        <div className="mb-4 w-full max-w-3xl rounded-lg bg-slate-200 dark:bg-slate-900">
+    <div
+      className="rounded-lg rounded-b-none border border-slate-300 bg-slate-50 px-2 py-2 dark:border-slate-700 dark:bg-slate-800"
+    >
+      <label htmlFor="prompt-input" className="sr-only">Enter your prompt</label>
+      <textarea
+        id="prompt-input"
+        value={description}
+        onChange={({ target }) => setDescription(target.value)}
+        className="w-full border-0 bg-slate-50 px-0 text-base text-slate-900 focus:outline-none dark:bg-slate-800 dark:text-slate-200 dark:placeholder-slate-400"
+        placeholder="Escribe la descripción de la tarea"
+        required
+      ></textarea>
+    </div>
+    <div className="flex items-center justify-between px-2 py-2">
+      <button
+        type="button"
+        className="inline-flex cursor-pointer justify-center rounded-lg p-2 text-slate-500 hover:bg-slate-50 hover:text-slate-900 dark:text-slate-400 dark:hover:bg-slate-600 dark:hover:text-slate-50"
+      >
+        <span className="sr-only">Attach file</span>
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          className="h-5 w-5"
+          viewBox="0 0 24 24"
+          strokeWidth="2"
+          stroke="currentColor"
+          fill="none"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+        >
+          <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+          <path
+            d="M15 7l-6.5 6.5a1.5 1.5 0 0 0 3 3l6.5 -6.5a3 3 0 0 0 -6 -6l-6.5 6.5a4.5 4.5 0 0 0 9 9l6.5 -6.5"
+          ></path>
+        </svg>
+        <span className="px-2 text-sm">Adjuntar un archivo</span>
+      </button>
+      <button
+        type="button"
+        onClick={reformulateTask}
+        className="mr-1 inline-flex items-center gap-x-2 rounded-lg bg-blue-600 px-4 py-2.5 text-center text-sm font-medium text-slate-50 hover:bg-blue-800 focus:ring-4 focus:ring-blue-200 dark:focus:ring-blue-900 sm:text-base"
+      >
+        Reformular tarea
+      </button>
+      <button
+        type="button"
+        onClick={generateSubtasks}
+        className="mr-1 inline-flex items-center gap-x-2 rounded-lg bg-blue-600 px-4 py-2.5 text-center text-sm font-medium text-slate-50 hover:bg-blue-800 focus:ring-4 focus:ring-blue-200 dark:focus:ring-blue-900 sm:text-base"
+      >
+        Generar subtareas automáticamente
+        <svg
+        xmlns="http://www.w3.org/2000/svg"
+        className="h-5 w-5"
+        aria-hidden="true"
+        viewBox="0 0 24 24"
+        strokeWidth="2"
+        stroke="currentColor"
+        fill="none"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      >
+        <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+        <path d="M8 9h8"></path>
+        <path d="M8 13h5"></path>
+        <path
+          d="M11.008 19.195l-3.008 1.805v-3h-2a3 3 0 0 1 -3 -3v-8a3 3 0 0 1 3 -3h12a3 3 0 0 1 3 3v4.5"
+        ></path>
+        <path d="M18 18m-3 0a3 3 0 1 0 6 0a3 3 0 1 0 -6 0"></path>
+        <path d="M20.2 20.2l1.8 1.8"></path>
+      </svg>
+      </button>
+    </div>
+  </div>
+       
         <div className="sub-tasks-container mt-2">
           {subTasks.map((subTask, index) => (
             <div
