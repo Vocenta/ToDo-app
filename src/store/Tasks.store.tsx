@@ -1,147 +1,137 @@
-import {
-  Action,
-  createSlice,
-  Dispatch,
-  MiddlewareAPI,
-  PayloadAction,
-} from "@reduxjs/toolkit";
+import { createSlice, Dispatch, MiddlewareAPI, Action, PayloadAction } from "@reduxjs/toolkit";
 import { Task } from "../interfaces";
+import { db } from "../firebase";
+import { collection, getDocs, addDoc, updateDoc, deleteDoc, doc } from "firebase/firestore";
 
-const defaultTasks: Task[] = [
-  {
-    title: "Task 1",
-    important: false,
-    description: "This is the description for this task",
-    date: "2023-04-12",
-    dir: "Main",
-    completed: true,
-    id: "t1",
-  },
-  {
-    title: "Task 2",
-    important: true,
-    description: "This is the description for this task",
-    date: "2023-05-15",
-    dir: "Main",
-    completed: true,
-    id: "t2",
-  },
-  {
-    title: "Task 3",
-    important: false,
-    description: "This is the description for this task",
-    date: "2023-08-21",
-    dir: "Main",
-    completed: false,
-    id: "t3",
-  },
-];
+// Definición de la colección en Firestore
+const tasksCollection = collection(db, "tasks");
+const directoriesCollection = collection(db, "directories");
 
-const getSavedDirectories = (): string[] => {
-  let dirList: string[] = [];
-  if (localStorage.getItem("directories")) {
-    dirList = JSON.parse(localStorage.getItem("directories")!);
-    const mainDirExists = dirList.some((dir: string) => dir === "Main");
-    if (!mainDirExists) {
-      dirList.push("Main");
-    }
-  } else {
-    dirList.push("Main");
-  }
-
-  if (localStorage.getItem("tasks")) {
-    const savedTasksList = JSON.parse(localStorage.getItem("tasks")!);
-    let dirNotSaved: string[] = [];
-    savedTasksList.forEach((task: Task) => {
-      if (!dirList.includes(task.dir)) {
-        if (!dirNotSaved.includes(task.dir)) {
-          dirNotSaved.push(task.dir);
-        }
-      }
-    });
-    dirList = [...dirList, ...dirNotSaved];
-  }
-  return dirList;
-};
-
+// Estado inicial vacío; se poblará desde Firestore
 const initialState: {
   tasks: Task[];
   directories: string[];
 } = {
-  tasks: localStorage.getItem("tasks")
-    ? JSON.parse(localStorage.getItem("tasks")!)
-    : defaultTasks,
-  directories: getSavedDirectories(),
+  tasks: [],
+  directories: [],
+};
+
+// Thunks para manejar operaciones asíncronas con Firestore
+export const fetchTasks = () => async (dispatch: Dispatch) => {
+  const taskSnapshot = await getDocs(tasksCollection);
+  const tasksList: Task[] = taskSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Task));
+  dispatch(tasksSlice.actions.setTasks(tasksList));
+};
+
+export const fetchDirectories = () => async (dispatch: Dispatch) => {
+  const dirSnapshot = await getDocs(directoriesCollection);
+  const directoriesList: string[] = dirSnapshot.docs.map(doc => doc.data().name as string);
+  dispatch(tasksSlice.actions.setDirectories(directoriesList));
+};
+
+export const addTask = (task: Task) => async (dispatch: Dispatch) => {
+  const docRef = await addDoc(tasksCollection, task);
+  dispatch(tasksSlice.actions.addNewTask({ ...task, id: docRef.id }));
+};
+
+export const updateTask = (task: Task) => async (dispatch: Dispatch) => {
+  const taskDoc = doc(db, "tasks", task.id);
+  const { id, ...data } = task; // Excluir 'id' antes de actualizar
+  await updateDoc(taskDoc, data);
+  dispatch(tasksSlice.actions.editTask(task));
+};
+
+export const removeTask = (id: string) => async (dispatch: Dispatch) => {
+  const taskDoc = doc(db, "tasks", id);
+  await deleteDoc(taskDoc);
+  dispatch(tasksSlice.actions.removeTask(id));
+};
+
+export const addDirectory = (dirName: string) => async (dispatch: Dispatch) => {
+  const docRef = await addDoc(directoriesCollection, { name: dirName });
+  dispatch(tasksSlice.actions.createDirectory(dirName)); // Reemplazar 'docName' por 'dirName'
+};
+
+export const deleteDirectory = (dirName: string) => async (dispatch: Dispatch) => {
+  // Asumimos que el nombre del directorio es único
+  const dirSnapshot = await getDocs(collection(db, "directories"));
+  const dirDoc = dirSnapshot.docs.find(doc => doc.data().name === dirName);
+  if (dirDoc) {
+    await deleteDoc(doc(db, "directories", dirDoc.id));
+    dispatch(tasksSlice.actions.deleteDirectory(dirName));
+  }
 };
 
 const tasksSlice = createSlice({
   name: "tasks",
   initialState: initialState,
   reducers: {
+    setTasks(state, action: PayloadAction<Task[]>) {
+      state.tasks = action.payload;
+    },
+    setDirectories(state, action: PayloadAction<string[]>) {
+      state.directories = action.payload;
+    },
     addNewTask(state, action: PayloadAction<Task>) {
       state.tasks = [action.payload, ...state.tasks];
     },
-    removeTask(state, action) {
-      const newTasksList = state.tasks.filter(
-        (task) => task.id !== action.payload
-      );
-      state.tasks = newTasksList;
+    removeTask(state, action: PayloadAction<string>) {
+      state.tasks = state.tasks.filter(task => task.id !== action.payload);
     },
     markAsImportant(state, action: PayloadAction<string>) {
-      const newTaskFavorited = state.tasks.find(
-        (task) => task.id === action.payload
-      );
-      newTaskFavorited!.important = !newTaskFavorited!.important;
+      const task = state.tasks.find(task => task.id === action.payload);
+      if (task) {
+        task.important = !task.important;
+        updateTask(task); // Actualiza en Firestore
+      }
     },
     editTask(state, action: PayloadAction<Task>) {
-      const taskId = action.payload.id;
-
-      const newTaskEdited: Task = state.tasks.find(
-        (task: Task) => task.id === taskId
-      )!;
-      const indexTask = state.tasks.indexOf(newTaskEdited);
-      state.tasks[indexTask] = action.payload;
+      const index = state.tasks.findIndex(task => task.id === action.payload.id);
+      if (index !== -1) {
+        state.tasks[index] = action.payload;
+        updateTask(action.payload); // Actualiza en Firestore
+      }
     },
     toggleTaskCompleted(state, action: PayloadAction<string>) {
-      const taskId = action.payload;
-
-      const currTask = state.tasks.find((task) => task.id === taskId)!;
-
-      currTask.completed = !currTask.completed;
+      const task = state.tasks.find(task => task.id === action.payload);
+      if (task) {
+        task.completed = !task.completed;
+        updateTask(task); // Actualiza en Firestore
+      }
     },
     deleteAllData(state) {
       state.tasks = [];
       state.directories = ["Main"];
+      // Aquí deberías eliminar todos los documentos de Firestore si es necesario
     },
     createDirectory(state, action: PayloadAction<string>) {
-      const newDirectory: string = action.payload;
-      const directoryAlreadyExists = state.directories.includes(newDirectory);
-      if (directoryAlreadyExists) return;
-      state.directories = [newDirectory, ...state.directories];
+      const newDirectory = action.payload;
+      if (!state.directories.includes(newDirectory)) {
+        state.directories = [newDirectory, ...state.directories];
+        addDirectory(newDirectory); // Agrega en Firestore
+      }
     },
     deleteDirectory(state, action: PayloadAction<string>) {
       const dirName = action.payload;
-
-      state.directories = state.directories.filter((dir) => dir !== dirName);
-      state.tasks = state.tasks.filter((task) => task.dir !== dirName);
+      state.directories = state.directories.filter(dir => dir !== dirName);
+      state.tasks = state.tasks.filter(task => task.dir !== dirName);
+      deleteDirectory(dirName); // Elimina en Firestore
     },
-    editDirectoryName(
-      state,
-      action: PayloadAction<{ newDirName: string; previousDirName: string }>
-    ) {
-      const newDirName: string = action.payload.newDirName;
-      const previousDirName: string = action.payload.previousDirName;
-      const directoryAlreadyExists = state.directories.includes(newDirName);
-      if (directoryAlreadyExists) return;
-
-      const dirIndex = state.directories.indexOf(previousDirName);
-
-      state.directories[dirIndex] = newDirName;
-      state.tasks.forEach((task) => {
-        if (task.dir === previousDirName) {
-          task.dir = newDirName;
+    editDirectoryName(state, action: PayloadAction<{ newDirName: string; previousDirName: string }>) {
+      const { newDirName, previousDirName } = action.payload;
+      if (!state.directories.includes(newDirName)) {
+        const index = state.directories.indexOf(previousDirName);
+        if (index !== -1) {
+          state.directories[index] = newDirName;
+          // Aquí deberías actualizar el nombre del directorio en Firestore
         }
-      });
+        state.tasks.forEach(task => {
+          if (task.dir === previousDirName) {
+            task.dir = newDirName;
+            updateTask(task); // Actualiza en Firestore
+          }
+        });
+      }
     },
   },
 });
@@ -149,39 +139,7 @@ const tasksSlice = createSlice({
 export const tasksActions = tasksSlice.actions;
 export default tasksSlice.reducer;
 
-export const tasksMiddleware =
-  (store: MiddlewareAPI) => (next: Dispatch) => (action: Action) => {
-    const nextAction = next(action);
-    const actionChangeOnlyDirectories =
-      tasksActions.createDirectory.match(action);
-
-    const isADirectoryAction: boolean = action.type
-      .toLowerCase()
-      .includes("directory");
-
-    if (action.type.startsWith("tasks/") && !actionChangeOnlyDirectories) {
-      const tasksList = store.getState().tasks.tasks;
-      localStorage.setItem("tasks", JSON.stringify(tasksList));
-    }
-    if (action.type.startsWith("tasks/") && isADirectoryAction) {
-      const dirList = store.getState().tasks.directories;
-      localStorage.setItem("directories", JSON.stringify(dirList));
-    }
-
-    if (tasksActions.deleteAllData.match(action)) {
-      localStorage.removeItem("tasks");
-      localStorage.removeItem("directories");
-      localStorage.removeItem("darkmode");
-    }
-
-    if (tasksActions.removeTask.match(action)) {
-      console.log(JSON.parse(localStorage.getItem("tasks")!));
-      if (localStorage.getItem("tasks")) {
-        const localStorageTasks = JSON.parse(localStorage.getItem("tasks")!);
-        if (localStorageTasks.length === 0) {
-          localStorage.removeItem("tasks");
-        }
-      }
-    }
-    return nextAction;
-  };
+// Middleware para manejar interacciones con Firestore si es necesario
+export const tasksMiddleware = (store: MiddlewareAPI) => (next: Dispatch) => (action: Action) => {
+  return next(action);
+};

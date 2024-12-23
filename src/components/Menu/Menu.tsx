@@ -24,7 +24,7 @@ const Menu: React.FC = () => {
     >
       <header className="h-full flex flex-col">
         <h1 className="font-bold uppercase text-center mt-8 text-lg tracking-wide hidden xl:block">
-          To-do list
+        ORGANIZADOR
         </h1>
         <BtnAddTask className="my-8 mx-4" />
         <NavLinks classActive={classLinkActive} />

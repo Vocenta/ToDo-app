@@ -1,14 +1,16 @@
 import React from "react";
-import avatar1 from "../../assets/avatar-1.jpg";
 import { useAppDispatch, useAppSelector } from "../../store/hooks";
 import { menusActions } from "../../store/Menu.store";
 import LayoutMenus from "../Utilities/LayoutMenus";
 import DarkMode from "./DarkMode";
 import DeleteTasks from "./DeleteTasks";
 import TasksDone from "./TasksDone";
+import { useAuthState } from "react-firebase-hooks/auth";
+import { auth, signOutUser } from "../../firebase";
 
 const AccountData: React.FC = () => {
   const menuOpen = useAppSelector((state) => state.menu.menuAccountOpened);
+  const [user] = useAuthState(auth);
 
   const dispatch = useAppDispatch();
 
@@ -24,9 +26,24 @@ const AccountData: React.FC = () => {
     >
       <section className="p-5 flex flex-col h-full">
         <span className="flex items-center mx-auto">
-          <span className="font-medium">Hi, User!</span>
-          <img src={avatar1} alt="cat" className="w-10 rounded-full ml-4" />
+          <span className="font-medium">
+            {user ? `Hi, ${user.displayName}!` : "Hi, User!"}
+          </span>
+          <img
+            src={user?.photoURL || "default-avatar-url"}
+            alt="User Avatar"
+            className="w-10 rounded-full ml-4"
+          />
         </span>
+
+        {user && (
+          <button
+            onClick={signOutUser}
+            className="mt-2 bg-red-500 text-white p-2 rounded-md"
+          >
+            Cerrar sesión
+          </button>
+        )}
 
         <DarkMode />
 
